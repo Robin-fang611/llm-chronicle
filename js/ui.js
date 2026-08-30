@@ -160,12 +160,10 @@
         body.appendChild(tagWrap);
       }
       btn.appendChild(body);
-      if (pending) {
-        if (pending.idx === i) btn.classList.add('selected');
-        else btn.setAttribute('disabled', 'disabled');
-      } else {
-        btn.addEventListener('click', function () { HANDLERS.onChoose && HANDLERS.onChoose(i); });
-      }
+      // v6 §1.3：选中后不锁定——所有选项均可点击改选；改选后仅替换待定选择并刷新回声/生活线，
+      // 资源结算在点「继续」时才发生（防误触）。
+      btn.addEventListener('click', function () { HANDLERS.onChoose && HANDLERS.onChoose(i); });
+      if (pending && pending.idx === i) btn.classList.add('selected');
       optsWrap.appendChild(btn);
     });
     screen.appendChild(optsWrap);
@@ -179,6 +177,7 @@
       life.appendChild(el('div', { className: 'life-kicker', text: '生活线' }));
       life.appendChild(el('div', { className: 'life-text', text: pending.option.life }));
       screen.appendChild(life);
+      screen.appendChild(el('div', { className: 'hint', text: '想改主意？再点一次别的选项。' }));
       var cont = el('button', { className: 'btn btn-primary btn-continue', attrs: { type: 'button' }, text: '继续' });
       cont.addEventListener('click', function () { HANDLERS.onContinue && HANDLERS.onContinue(); });
       screen.appendChild(cont);

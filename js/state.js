@@ -47,18 +47,22 @@
     return { index: idx, total: total };
   }
 
-  /** 选择一个选项：应用结算并记录回声/生活线，返回用于展示的信息 */
+  /** 选择一个选项：仅记录待定选择（不结算资源），返回用于展示的信息。
+      玩家在点「继续」前可反复改选（防误触，v6 §1.3）；真正结算发生在 advance()。 */
   function choose(s, step, idx) {
     var opts = optionsFor(s, step);
     var opt = opts[idx];
     if (!opt) return null;
-    Logic.choose(s, opt, step);
     s._pending = { idx: idx, option: opt };
     return opt;
   }
 
-  /** 推进到下一步；必要时结算中段/结局 */
+  /** 推进到下一步；出口前结算「已确认的待定选择」，然后处理中段/结局 */
   function advance(s) {
+    // 结算：仅应用 _pending 指向的选项（改选后以最后确认的为准）
+    if (s._pending) {
+      Logic.choose(s, s._pending.option, currentStep(s));
+    }
     s.stepIndex += 1;
     s._pending = null;
     if (s.stepIndex >= s.plan.length) { finalize(s); s.screen = 'ending'; return; }
