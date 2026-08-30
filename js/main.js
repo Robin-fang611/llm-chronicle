@@ -39,13 +39,8 @@
   var raf = global.requestAnimationFrame || function (cb) { cb(); };
 
   function computeStage(s) {
-    if (!s || s.screen === 'opening') return 'l1';
-    var mid = -1;
-    if (s.plan) for (var i = 0; i < s.plan.length; i++) {
-      if (s.plan[i].type === 'midsettle') { mid = i; break; }
-    }
-    if (mid >= 0 && s.stepIndex > mid) return 'l3';
-    return 'l2';
+    // v5：阶段层跟随年龄档（18→校园 l1 / 22→职场 l2 / 25→转型 l3）
+    return s.stage || 'l1';
   }
 
   function computeSkin(s) {
@@ -103,13 +98,12 @@
 
   /* ============================ 处理器（UI 调用） ============================ */
   var HANDLERS = {
-    /* 开局：滑动年份/年龄，实时改 preview/stamp 与 mode（art-spec §7 开局）
-       必须重建整局：plan/初始资源随参数变，只改 startYear/startAge 会导致
-       「显示选中的参数、实际按默认参数跑」的错位（v3.3 缺陷） */
-    onSlide: function (year, age) {
-      var Y = year != null ? U.num(year, 2017) : state.startYear;
-      var A = age != null ? U.num(age, 18) : state.startAge;
-      state = S.newGame(Y, A);
+    /* 开局：选择年龄档（18/22/25），年份恒 2017（v5 §1.2-2）
+       必须重建整局：plan/初始资源随年龄档变，只改 startAge 会导致
+       「显示选中的年龄、实际按默认年龄跑」的错位（v3.3 缺陷同源） */
+    onPickAge: function (age) {
+      var A = U.num(age, 18);
+      state = S.newGame(A);
       render();
     },
 
@@ -160,9 +154,9 @@
     /* 档案页 → 返回档案柜 */
     onBackCab: function () { go('archives', null); },
 
-    /* 再来一局：回开局页，保留本局年份×年龄参数（策划案 v4 §1.2-5） */
+    /* 再来一局：回开局页，保留本局年龄档参数（策划案 v5 §1.2-5） */
     onRestart: function () {
-      state = S.newGame(state.startYear, state.startAge);
+      state = S.newGame(state.startAge);
       lastExtra = null;
       try { S.save(state); } catch (e) { if (global.console) console.error('[save]', e); }
       render();
@@ -250,11 +244,11 @@
 
       var saved = S.load();
       if (saved && !saved.ended) {
-        // 有未完成存档：仍进开局页（预填上次参数），提供「继续上次」（策划案 v4 §1.2-4）
-        state = S.newGame(saved.startYear, saved.startAge);
+        // 有未完成存档：仍进开局页（预填上次年龄档），提供「继续上次」（策划案 v5 §1.2-4）
+        state = S.newGame(saved.startAge);
         lastExtra = { canResume: true };
       } else {
-        state = S.newGame(2017, 18);
+        state = S.newGame(18);
         lastExtra = null;
       }
       render();

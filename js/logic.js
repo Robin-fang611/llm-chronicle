@@ -16,14 +16,14 @@
 
   var Logic = {};
 
-  /* ============================ 13.1 初始值公式 ============================ */
-  Logic.initialValues = function (Y, A) {
-    Y = Util.num(Y, 2017); A = Util.num(A, 18);
-    var deposit = 0.5 + (A - 18) * 1.2 + (Y - 2017) * 0.3;
-    var skill = 15 + (A - 18) * 4 + (Y - 2017) * 1;
+  /* ============================ 13.1 初始值公式（年份恒 2017，只随年龄 A） ============================ */
+  Logic.initialValues = function (A) {
+    A = Util.num(A, 18);
+    var deposit = 0.5 + (A - 18) * 1.2;
+    var skill = 15 + (A - 18) * 4;
     var network = 20 + (A - 18) * 3;
-    var mind = Math.max(35, 58 - (A - 18) * 2 - (Y - 2017) * 1);
-    var aiDep = Math.min(30, 3 + (Y - 2017) * 1.5 + (A - 18) * 0.5);
+    var mind = Math.max(35, 58 - (A - 18) * 2);
+    var aiDep = Math.min(30, 3 + (A - 18) * 0.5);
     return {
       deposit: Math.round(deposit * 10) / 10,
       skill: Math.round(skill),
@@ -33,20 +33,18 @@
     };
   };
 
-  /* ============================ 5.3 开局格 → 模式映射 ============================ */
-  var MODE_TABLE = {
-    "2017": { 18: "m1", 19: "m1", 20: "m1", 21: "m1", 22: "m2", 23: "m2", 24: "m3", 25: "m4" },
-    "2018": { 18: "m1", 19: "m1", 20: "m1", 21: "m1", 22: "m2", 23: "m2", 24: "m2", 25: "m3" },
-    "2019": { 18: "m1", 19: "m1", 20: "m1", 21: "m3", 22: "m1", 23: "m4", 24: "m2", 25: "m4" },
-    "2020": { 18: "m1", 19: "m1", 20: "m1", 21: "m3", 22: "m3", 23: "m2", 24: "m4", 25: "m2" },
-    "2021": { 18: "m3", 19: "m1", 20: "m2", 21: "m1", 22: "m2", 23: "m2", 24: "m3", 25: "m4" },
-    "2022": { 18: "m1", 19: "m1", 20: "m4", 21: "m2", 22: "m3", 23: "m3", 24: "m2", 25: "m4" },
-    "2023": { 18: "m1", 19: "m1", 20: "m2", 21: "m4", 22: "m4", 23: "m4", 24: "m2", 25: "m4" },
-    "2024": { 18: "m4", 19: "m4", 20: "m1", 21: "m3", 22: "m4", 23: "m2", 24: "m1", 25: "m4" }
+  /* ============================ 档位 → 模式映射（皮肤跟随档位） ============================ */
+  /* v5：18=大学线 m3 / 22=工作线 m1 / 25=跳槽线 m2（art-spec 多模式皮肤） */
+  Logic.modeFor = function (A) {
+    if (A <= 18) return "m3";
+    if (A <= 22) return "m1";
+    return "m2";
   };
-  Logic.modeFor = function (Y, A) {
-    var row = MODE_TABLE[String(Y)];
-    return (row && row[A]) ? row[A] : "m1";
+  /* 档位 → 阶段层：18→校园 l1 / 22→职场 l2 / 25→转型 l3 */
+  Logic.stageForAge = function (A) {
+    if (A <= 18) return "l1";
+    if (A <= 22) return "l2";
+    return "l3";
   };
 
   /* ============================ 年代滤镜 / 阶段层 ============================ */
@@ -56,11 +54,6 @@
     if (gy <= 2024) return 3;
     return 4;
   };
-  Logic.stageForAge = function (A) {
-    if (A <= 20) return "l1";
-    if (A <= 22) return "l2";
-    return "l3";
-  };
   Logic.genLabel = function (gy) {
     if (gy <= 2019) return "初代模型";
     if (gy <= 2022) return "二代浪潮";
@@ -68,32 +61,35 @@
     return "深度思考";
   };
 
-  /* ============================ 决策序列生成（策划案 v4 §6.0） ============================ */
+  /* ============================ 决策序列生成（策划案 v5 §6.0） ============================ */
   /* 返回有序 steps；每个 step:
-     { type:'q1'|'q2'|'era'|'breaking'|'midsettle'|'ending',
+     { type:'q1'|'q2'|'q3'|'era'|'breaking'|'midsettle'|'ending',
        id, year, age }  （breaking 额外有 breakingId）
      midsettle / ending 为虚拟步骤（标记位置，不消耗选项）。
-     权威规则（禁止自由发挥）：
-       - 年龄公式：age = A + (year - Y)，禁止硬编码年龄差
-       - 核心序列见 §6.0 表；D4b 仅 Y<=2019 且恒 2020；D4/中段恒 2024；结局恒 2026
-       - 号外：每局恰好 2 次，排期 = { 2017-2021: b1+b2, 2022: b2+b4, 2023: b2+b3, 2024: b2+b6 }
-       - 号外插入：排在「年份 <= 事件年 的最后一个步骤」之后
+     权威规则（禁止自由发挥，策划案 v5 §6.0）：
+       - 年份恒 2017 开局；年龄公式：age = A + (year - 2017)
+       - 线性序列 2017→2026，不跳年；疫情恒 2020；D4/中段恒 2024；结局恒 2026
+       - 决策数恒 13；号外固定 2 次（b1 @2022.11、b2 @2023.5），全档一致
+       - q1/q2/q3 为档位生活题（题面/选项库随 A），era/breaking 全档共享
   */
-  Logic.buildPlan = function (Y, A) {
-    Y = Util.num(Y, 2017); A = Util.num(A, 18);
-    function ageAt(g) { return A + (g - Y); }
+  Logic.buildPlan = function (A) {
+    A = Util.num(A, 18);
+    function ageAt(g) { return A + (g - 2017); }
     function st(type, id, year, extra) {
       var s = { type: type, id: id, year: year, age: ageAt(year) };
       if (extra) for (var k in extra) s[k] = extra[k];
       return s;
     }
 
-    // 核心序列（§6.0 表）
+    // 核心序列（v5 §6.0 表，三档共用）
     var steps = [];
-    steps.push(st("q1", "q1", Y));
-    steps.push(st("q2", "q2", Y));
-    steps.push(st("era", "D3", Math.max(Y, 2019)));
-    if (Y <= 2019) steps.push(st("era", "D4b", 2020));
+    steps.push(st("q1", "q1", 2017));
+    steps.push(st("q2", "q2", 2018));
+    steps.push(st("era", "D3", 2019));
+    steps.push(st("era", "D4b", 2020));
+    steps.push(st("q3", "q3", 2021));
+    steps.push(st("breaking", "brk", 2022, { breakingId: "b1" }));
+    steps.push(st("breaking", "brk", 2023, { breakingId: "b2" }));
     steps.push(st("era", "D4", 2024));
     steps.push(st("midsettle", "mid", 2024));
     steps.push(st("era", "D5", 2024));
@@ -101,28 +97,8 @@
     steps.push(st("era", "D7", 2025));
     steps.push(st("era", "D8", 2026));
     steps.push(st("era", "D9", 2026));
-
-    // 号外排期（§6.0 表）
-    var lineUp = [];
-    if (Y <= 2021) lineUp.push({ id: "b1", year: 2022 });
-    if (Y <= 2023) lineUp.push({ id: "b2", year: 2023 });
-    else lineUp.push({ id: "b2", year: 2024 });
-    if (Y === 2022) lineUp.push({ id: "b4", year: 2025 });
-    if (Y === 2023) lineUp.push({ id: "b3", year: 2024 });
-    if (Y === 2024) lineUp.push({ id: "b6", year: 2024 });
-
-    // 插入规则：排在「年份 <= 事件年 的最后一个步骤」之后
-    var result = steps.slice();
-    for (var i = 0; i < lineUp.length; i++) {
-      var ev = lineUp[i];
-      var pos = 0;
-      for (var j = 0; j < result.length; j++) {
-        if (result[j].year <= ev.year) pos = j + 1;
-      }
-      result.splice(pos, 0, st("breaking", "brk", ev.year, { breakingId: ev.id }));
-    }
-    result.push(st("ending", "end", 2026));
-    return result;
+    steps.push(st("ending", "end", 2026));
+    return steps;
   };
 
   /* ============================ 资源结算 ============================ */
@@ -274,7 +250,7 @@
     return sorted.slice(0, n || 3);
   };
 
-  /* ============================ 结局占位符参数（策划案 v4 §8.4） ============================ */
+  /* ============================ 结局占位符参数（策划案 v5 §8.4） ============================ */
   /* 返回结局模板替换数据：{AGE, 裸辞那年, 被优化那年, 开局那年, 裁员那年, 2023那年前后} */
   Logic.endingParams = function (state) {
     var plan = state.plan || [];
@@ -285,10 +261,10 @@
     var d5 = planYearOf(function (s) { return s.type === 'era' && s.id === 'D5'; });
     var b2 = planYearOf(function (s) { return s.type === 'breaking' && s.breakingId === 'b2'; });
     return {
-      AGE: state.startAge + (2026 - state.startYear),
+      AGE: state.startAge + (2026 - 2017),
       裸辞那年: state.flagYears && state.flagYears.bareQuit ? state.flagYears.bareQuit : (d5 || 2024),
       被优化那年: d5 || 2024,
-      开局那年: state.startYear,
+      开局那年: 2017,
       裁员那年: d5 || 2024,
       "2023 那年前后": b2 || 2023
     };
@@ -333,29 +309,23 @@
   Logic.stepContent = function (state, step) {
     var C = Content;
     var Y = state.startYear, A = state.startAge;
-    if (step.type === 'q1') {
-      var qk = C.q1[Y + '-' + A].opt;
-      return { kind: 'decision', chapter: '第一题', scene: C.q1[Y + '-' + A].scene, options: C.optLib.q1[qk] };
-    }
-    if (step.type === 'q2') {
-      var qk2 = C.q2[Y + '-' + A].opt;
-      var opts2;
-      if (qk2 === 'S1') opts2 = C.optLib.q2.S1[C.q2VariantForYear(state.year)];
-      else opts2 = C.optLib.q2[qk2];
-      return { kind: 'decision', chapter: '第二题', scene: C.q2[Y + '-' + A].scene, options: opts2 };
+    var CH = { q1: '第一题', q2: '第二题', q3: '第三题' };
+    if (step.type === 'q1' || step.type === 'q2' || step.type === 'q3') {
+      var band = C.optKeyForAge(A);
+      var scene = C.life[step.year][String(A)];
+      // 选项库按档位固定，三年共用（策划案 v5 §4.4）
+      var opts = C.lifeOptLib[band] || [];
+      return { kind: 'decision', chapter: CH[step.type], scene: scene, options: opts };
     }
     if (step.type === 'era') {
       var e = C.era[step.id];
-      // 场景占位符（策划案 v4 §6.8/§6.9）：{AGE}=本步年龄，{START_AGE}=开局年龄
-      var scene = Util.tpl(e.scene, { AGE: step.age, START_AGE: state.startAge });
-      return { kind: 'decision', chapter: e.title, scene: scene, options: e.opts };
+      // 场景占位符（策划案 v5 §5）：{AGE}=本步年龄，{START_AGE}=开局年龄
+      var scene2 = Util.tpl(e.scene, { AGE: step.age, START_AGE: state.startAge });
+      return { kind: 'decision', chapter: e.title, scene: scene2, options: e.opts };
     }
     if (step.type === 'breaking') {
       var b = C.breaking[step.breakingId];
-      // 号外年份角标（策划案 v4 §6.3）：b2 在 2024 开局时显示步骤年份，其余用事件自带标签
-      var yearLabel = b.yearLabel;
-      if (step.breakingId === 'b2' && step.year > 2023) yearLabel = String(step.year);
-      return { kind: 'breaking', kicker: b.kicker, title: b.title, scene: b.sub, options: b.opts, variant: b.variant, yearLabel: yearLabel };
+      return { kind: 'breaking', kicker: b.kicker, title: b.title, scene: b.sub, options: b.opts, variant: b.variant, yearLabel: b.yearLabel };
     }
     if (step.type === 'midsettle') return { kind: 'midsettle' };
     if (step.type === 'ending') return { kind: 'ending' };
@@ -363,24 +333,25 @@
   };
 
   /* ============================ 初始化一局 ============================ */
-  Logic.newGame = function (Y, A) {
-    var init = Logic.initialValues(Y, A);
+  Logic.newGame = function (A) {
+    A = Util.num(A, 18);
+    var init = Logic.initialValues(A);
     var state = {
-      startYear: Y, startAge: A,
-      year: Y, age: A,
+      startYear: 2017, startAge: A,
+      year: 2017, age: A,
       res: { deposit: init.deposit, skill: init.skill, network: init.network, mind: init.mind, aiDep: init.aiDep },
       flags: {}, jumps: 0, bareQuit: false, lows: 0, flagYears: {},
       tend: emptyTend(),
       choices: [],
-      plan: Logic.buildPlan(Y, A),
+      plan: Logic.buildPlan(A),
       stepIndex: 0,
-      reachedYear: Y,
+      reachedYear: 2017,
       ending: null, personality: null,
       _lowDeposit: false, _lowMind: false
     };
-    state.mode = Logic.modeFor(Y, A);
+    state.mode = Logic.modeFor(A);
     state.stage = Logic.stageForAge(A);
-    state.isHeavy = (Y === 2022 && A === 23);
+    state.isHeavy = false;
     return state;
   };
 

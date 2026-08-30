@@ -241,33 +241,35 @@ img, svg { display: block; }
 }
 .title { font-size: var(--fs-display); line-height: var(--lh-display); font-weight: var(--fw-bold); }
 .title b { font-family: var(--font-note); color: var(--accent); font-weight: var(--fw-bold); }
-.sliders { display: flex; flex-direction: column; gap: var(--sp-6); margin-top: var(--sp-2); }
-.slider-row { display: flex; align-items: center; gap: var(--sp-3); }
-.slider-label { width: 36px; font-size: var(--fs-sm); color: var(--ink-2); flex: none; }
-.slider-box { flex: 1; display: flex; flex-direction: column; gap: 6px; }
-.slider-row input[type="range"] {
-  -webkit-appearance: none; appearance: none;
-  width: 100%; height: 8px; border-radius: var(--radius-sm);
-  background: var(--paper-3);
-  border: 1px solid var(--ink);
-  outline: none;
+/* 年龄三档卡片（v5：固定 2017，只选年龄 18/22/25） */
+.age-cards { display: flex; flex-direction: column; gap: var(--sp-3); margin-top: var(--sp-4); }
+.age-card {
+  display: flex; align-items: center; gap: var(--sp-4);
+  background: var(--paper-0);
+  border: 1.5px solid var(--rule-strong);
+  border-radius: var(--radius-card);
+  padding: var(--sp-3) var(--sp-4);
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: transform var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
 }
-.slider-row input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none; appearance: none;
-  width: 40px; height: 28px; margin-top: 0;
-  background: var(--accent); border: 1px solid var(--paper-0);
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.18);
-  border-radius: var(--radius-sm); cursor: pointer;
+.age-card:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--rule-strong); }
+.age-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.age-card-num {
+  flex: none; width: 52px; height: 52px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-weight: var(--fw-bold);
+  font-size: 24px; color: var(--ink);
+  background: var(--paper-1);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-sm);
 }
-.slider-row input[type="range"]::-moz-range-thumb {
-  width: 40px; height: 28px; border: 1px solid var(--paper-0);
-  background: var(--accent); box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.18);
-  border-radius: var(--radius-sm); cursor: pointer;
-}
-.slider-row input[type="range"]:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
-.slider-val { width: 44px; text-align: right; font-family: var(--font-mono); font-weight: var(--fw-bold); color: var(--ink); flex: none; }
-.slider-ticks { display: flex; justify-content: space-between; padding: 0 2px; }
-.tick { font-size: var(--fs-xs); color: var(--ink-3); }
+.age-card-sub { font-family: var(--font-note); font-size: var(--fs-base); color: var(--ink-2); }
+.age-card.is-active { border-color: var(--accent); background: var(--paper-0); }
+.age-card.is-active .age-card-num { background: var(--accent); color: var(--paper-0); border-color: var(--accent); }
+.age-card.is-active .age-card-sub { color: var(--ink); font-weight: var(--fw-bold); }
 .preview-card {
   margin-top: var(--sp-2);
   background: var(--paper-0);

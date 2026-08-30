@@ -83,15 +83,21 @@
     var Y = state.startYear, A = state.startAge;
     var screen = el('div', { className: 'screen screen-opening' });
     screen.appendChild(el('div', { className: 'stamp', id: 'open-stamp', text: 'NO.' + Y + '-' + A }));
-    screen.appendChild(el('h1', { className: 'title', html: '你回到 <b>' + Y + '</b> 年<br>你那年 <b>' + A + '</b> 岁' }));
+    screen.appendChild(el('h1', { className: 'title', html: '你回到 <b>' + Y + '</b> 年<br>你那年几岁？' }));
 
-    var sliders = el('div', { className: 'sliders' });
-    var onSlide = function (year, age) { HANDLERS.onSlide && HANDLERS.onSlide(year, age); };
-    sliders.appendChild(sliderRow('sl-year', '年份', 2017, 2024, Y, ticksFor(2017, 2024), function (v) { onSlide(v, null); }));
-    sliders.appendChild(sliderRow('sl-age', '年龄', 18, 25, A, ticksFor(18, 25), function (v) { onSlide(null, v); }));
-    screen.appendChild(sliders);
+    // 年龄三档卡片（v5：固定 2017，只选年龄 18/22/25）
+    var cards = el('div', { className: 'age-cards' });
+    [18, 22, 25].forEach(function (age) {
+      var active = age === A;
+      var card = el('button', { className: 'age-card' + (active ? ' is-active' : ''), attrs: { type: 'button', 'data-age': age, 'aria-pressed': active ? 'true' : 'false' } });
+      card.appendChild(el('div', { className: 'age-card-num', text: String(age) }));
+      card.appendChild(el('div', { className: 'age-card-sub', text: C.bandTitle(age).replace(age + ' 岁 · ', '') }));
+      card.addEventListener('click', function () { HANDLERS.onPickAge && HANDLERS.onPickAge(age); });
+      cards.appendChild(card);
+    });
+    screen.appendChild(cards);
 
-    screen.appendChild(el('div', { className: 'preview-card', id: 'open-preview', text: C.openings[Y + '-' + A] }));
+    screen.appendChild(el('div', { className: 'preview-card', id: 'open-preview', text: C.openings[String(A)] }));
     var begin = el('button', { className: 'btn btn-primary', id: 'btn-begin', attrs: { type: 'button' }, text: '开始' });
     begin.addEventListener('click', function () { HANDLERS.onBegin && HANDLERS.onBegin(); });
     screen.appendChild(begin);
@@ -102,31 +108,6 @@
     }
     screen.appendChild(el('div', { className: 'footnote', text: '不用懂 AI 在干嘛，选你当年会选的就行' }));
     return screen;
-  }
-  function ticksFor(min, max) {
-    var arr = []; for (var i = min; i <= max; i++) arr.push(i); return arr;
-  }
-  /* 滑杆：onChange 直接绑在元素引用上（元素可能尚未挂载进文档，
-     不能依赖 document.getElementById 时序——v3.3 即因此缺陷导致滑杆不可交互） */
-  function sliderRow(id, label, min, max, val, ticks, onChange) {
-    var row = el('div', { className: 'slider-row' });
-    row.appendChild(el('div', { className: 'slider-label', text: label }));
-    var input = el('input', { attrs: { type: 'range', id: id, min: min, max: max, step: 1, value: val, 'aria-label': label } });
-    input.addEventListener('input', function () {
-      var raw = (input.value != null && input.value !== '') ? input.value : input.getAttribute('value');
-      var v = parseInt(raw, 10);
-      if (!isFinite(v)) return;
-      var lab = document.getElementById(id + '-val');
-      if (lab) lab.textContent = String(v);
-      onChange && onChange(v);
-    });
-    row.appendChild(input);
-    row.appendChild(el('div', { className: 'slider-val', id: id + '-val', text: String(val) }));
-    var tickWrap = el('div', { className: 'slider-ticks' });
-    ticks.forEach(function (t) { tickWrap.appendChild(el('span', { className: 'tick', text: String(t) })); });
-    var box = el('div', { className: 'slider-box' });
-    box.appendChild(row); box.appendChild(tickWrap);
-    return box;
   }
 
   /* ============================================================ 决策页 / 号外 */

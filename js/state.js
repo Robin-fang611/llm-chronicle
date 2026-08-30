@@ -12,11 +12,11 @@
   var Util = global.Util;
   var Logic = global.Logic;
 
-  var SAVE_KEY = 'mc_save_v4';
+  var SAVE_KEY = 'mc_save_v5';
 
-  /** 开一局新游戏 */
-  function newGame(Y, A) {
-    var s = Logic.newGame(Util.num(Y, 2017), Util.num(A, 18));
+  /** 开一局新游戏（年龄档 18/22/25；年份恒 2017） */
+  function newGame(A) {
+    var s = Logic.newGame(Util.num(A, 18));
     s.screen = 'opening';
     s.era = Logic.eraForYear(s.year);
     s.archives = [];
@@ -40,7 +40,7 @@
     var plan = s.plan, total = 0, idx = 0;
     for (var i = 0; i < plan.length; i++) {
       var t = plan[i].type;
-      var dec = (t === 'q1' || t === 'q2' || t === 'era' || t === 'breaking');
+      var dec = (t === 'q1' || t === 'q2' || t === 'q3' || t === 'era' || t === 'breaking');
       if (dec) total++;
       if (i <= s.stepIndex && dec) idx++;
     }
