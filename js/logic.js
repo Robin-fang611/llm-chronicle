@@ -209,7 +209,8 @@
   Logic.computePersonality = function (state) {
     var r = state.res, fl = state.flags;
     // A/R
-    var ar = r.aiDep >= 50 ? "A" : "R";
+    // A/R：aiDep 显著超出人生基线（初始值 +18）→ 拥抱；否则抵抗（v6：绝对 50 在排期内不可达，改为相对线）
+    var ar = (r.aiDep >= Logic.initialValues(state.startAge).aiDep + 18) ? "A" : "R";
     // G/S
     var gs;
     if (fl.bareQuit || state.jumps >= 2) gs = "G";
@@ -311,10 +312,12 @@
     var Y = state.startYear, A = state.startAge;
     var CH = { q1: '第一题', q2: '第二题', q3: '第三题' };
     if (step.type === 'q1' || step.type === 'q2' || step.type === 'q3') {
-      var band = C.optKeyForAge(A);
-      var scene = C.life[step.year][String(A)];
-      // 选项库按档位固定，三年共用（策划案 v5 §4.4）
-      var opts = C.lifeOptLib[band] || [];
+      var Astr = String(A);
+      var band = C.optKeyForAge(A);            // S1/S2/S3
+      var key = band + '@' + step.year;        // 如 S2@2021
+      var scene = C.life[step.year][Astr];
+      // 选项组 = 年份 × 档位专属（策划案 v6 §4），语义与题面精确对齐
+      var opts = C.lifeOptLib[key] || [];
       return { kind: 'decision', chapter: CH[step.type], scene: scene, options: opts };
     }
     if (step.type === 'era') {

@@ -85,13 +85,13 @@
     screen.appendChild(el('div', { className: 'stamp', id: 'open-stamp', text: 'NO.' + Y + '-' + A }));
     screen.appendChild(el('h1', { className: 'title', html: '你回到 <b>' + Y + '</b> 年<br>你那年几岁？' }));
 
-    // 年龄三档卡片（v5：固定 2017，只选年龄 18/22/25）
+    // 年龄三档卡片（v6：固定 2017，只选年龄 18/22/25；文案=§1.1 逐字「{age} 岁 · {阶段}」）
     var cards = el('div', { className: 'age-cards' });
     [18, 22, 25].forEach(function (age) {
       var active = age === A;
       var card = el('button', { className: 'age-card' + (active ? ' is-active' : ''), attrs: { type: 'button', 'data-age': age, 'aria-pressed': active ? 'true' : 'false' } });
       card.appendChild(el('div', { className: 'age-card-num', text: String(age) }));
-      card.appendChild(el('div', { className: 'age-card-sub', text: C.bandTitle(age).replace(age + ' 岁 · ', '') }));
+      card.appendChild(el('div', { className: 'age-card-sub', text: C.bandTitle(age) }));
       card.addEventListener('click', function () { HANDLERS.onPickAge && HANDLERS.onPickAge(age); });
       cards.appendChild(card);
     });
@@ -203,7 +203,7 @@
 
     var kc = L.keyChoices(state, 3);
     var kcWrap = el('div', { className: 'key-choices' });
-    kcWrap.appendChild(el('div', { className: 'kc-head', text: '前半生你的三个关键选择' }));
+    kcWrap.appendChild(el('div', { className: 'kc-head', text: '这些年你的三个关键选择' }));
     kc.forEach(function (ch) {
       var row = el('div', { className: 'kc-row' });
       row.appendChild(el('div', { className: 'kc-year', text: (ch.year || '') + ' 年' }));
@@ -212,11 +212,12 @@
     });
     screen.appendChild(kcWrap);
 
-    // 气质进度 2/4：AR / GS 此刻可判，TP / IO 待定
-    var p = state.personality ? state.personality.dims : null;
+    // 气质进度：AR/GS 按当前已做选择即时可判（v6 修：此前 state.personality 只在结局才计算，
+    // 导致中段永远 4 个「?」却写死「2/4」）；TP/IO 依赖最终资源差，保持「?」
+    var ppv = L.computePersonality(state);
     var dims = [
-      { code: 'AR', name: 'AI 姿态', known: !!p, val: p ? (p.ar === 'A' ? '拥抱' : '抵抗') : '?' },
-      { code: 'GS', name: '人生策略', known: !!p, val: p ? (p.gs === 'G' ? '敢闯' : '求稳') : '?' },
+      { code: 'AR', name: 'AI 姿态', known: true, val: ppv.ar === 'A' ? '拥抱' : '抵抗' },
+      { code: 'GS', name: '人生策略', known: true, val: ppv.gs === 'G' ? '敢闯' : '求稳' },
       { code: 'TP', name: '吃饭武器', known: false, val: '?' },
       { code: 'IO', name: '能量方向', known: false, val: '?' }
     ];
@@ -228,7 +229,7 @@
     screen.appendChild(pp);
 
     var actions = el('div', { className: 'mid-actions' });
-    var cont = el('button', { className: 'btn btn-primary', attrs: { type: 'button' }, text: '继续走完剩下五年' });
+    var cont = el('button', { className: 'btn btn-primary', attrs: { type: 'button' }, text: '继续走完最后两年' });
     cont.addEventListener('click', function () { HANDLERS.onContinue && HANDLERS.onContinue(); });
     actions.appendChild(cont);
     var share = el('button', { className: 'btn btn-ghost', attrs: { type: 'button' }, text: '分享半场小结' });

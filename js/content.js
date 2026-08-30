@@ -58,12 +58,11 @@
       "25": "你工作第七年，工资涨过一次，人没涨。你重新开始想：打工到 35 岁还是这样吗？你手里攒了 12 万——够不够干点别的。"
     }
   };
-  /* ============================ 4.4 生活题选项库（按档位固定，三口共用） ============================ */
+  /* ============================ 4.4 生活题选项库（年份 × 档位 = 9 组，策划案 v6 §4） ============================ */
   /* effect: 资源变化；tend: 倾向分；flag: 关键标记（同 v4 语义）
-     权威规则：S1/S2/S3 的 A/B/C 选项文字、效果、倾向、flag 全档三年固定，
-     题面场景随年份（Content.life），选项库不随年份变化（策划案 v5 §4.4）。 */
+     权威规则：每组选项语义与对应年份题面精确对齐（v6 §4），禁止跨年份挪用。 */
   Content.lifeOptLib = {
-    S1: [
+    "S1@2017": [
       { label: "计算机：听说能挣大钱", effect: { skill: 15, network: 4, mind: -5 }, tend: { 技术红利: 4 }, flag: "choseCS",
         echo: "AlphaGo 赢完李世石一年后，「人工智能」四个字第一次走进中国家庭的饭桌。", life: "你妈说「学计算机啊，将来给人修电脑」" },
       { label: "新闻/中文/绘画：我想做喜欢的事", effect: { skill: 8, mind: 3 }, tend: { 清醒打工人: 1 },
@@ -71,7 +70,23 @@
       { label: "没想好，先混着", effect: { mind: 4, skill: -2 }, tend: { 数字隐士: 1 },
         echo: "很多人都是这样的。18 岁本来就不知道自己要什么。", life: "你开学第 3 周，开始逃了高数" }
     ],
-    S2: [
+    "S1@2018": [
+      { label: "刷题转 CS：隔壁宿舍都开始了", effect: { skill: 14, network: 3, mind: -4 }, tend: { 技术红利: 3 }, flag: "choseCS",
+        echo: "那年 BERT 发布、AI 换脸视频刷屏，「学编程」第一次在大学里成了热门词。", life: "你在图书馆刷了三个月题，掉了一把头发" },
+      { label: "坚持喜欢的：把喜欢的事做到得奖", effect: { skill: 9, mind: 4 }, tend: { 清醒打工人: 2 },
+        echo: "那年自媒体与内容创业正热，很多人靠爱好养活了自己。", life: "你的社团作品拿了校级奖，高兴了一晚上" },
+      { label: "先看看：我还没想好", effect: { mind: 5, skill: 0 }, tend: { 数字隐士: 1 },
+        echo: "那年大多数人都是这个状态：还没想好，先享受大学生活。", life: "你入了一个桌游社团，认识了几个现在还在联系的朋友" }
+    ],
+    "S1@2021": [
+      { label: "接互联网 offer：钱多、跑得快", effect: { deposit: 8, skill: 18, mind: -8 }, tend: { 技术红利: 4, 清醒打工人: 1 },
+        echo: "那年 AI 画的油画拿了奖，「史上最卷就业季」的说法刷屏。", life: "你第一次赶早高峰地铁，被人流推着走，想「这就是长大」" },
+      { label: "考公考编：先把安稳攥住", effect: { deposit: 3, mind: 6, skill: 2 }, tend: { 数字隐士: 2 }, flag: "steady",
+        echo: "考公报名人数年年破纪录，人人都在找「稳」。", life: "你妈终于满意了，那是她三年里第一次不唠叨你" },
+      { label: "小公司 offer：先活着，再找想干嘛", effect: { deposit: 2, skill: 6, network: 3, mind: 2 }, tend: { 清醒打工人: 2, 浪里掌舵: 1 },
+        echo: "小公司活下来的人，后来很多都赶上了 AI 潮的第一波。", life: "你入职第一天，老板给了你一台 5 年前的本" }
+    ],
+    "S2@2017": [
       { label: "进大厂，哪怕 996", effect: { deposit: 8, skill: 18, mind: -8 }, tend: { 技术红利: 4, 清醒打工人: 1 },
         echo: "那几年大厂校招是「上岸」的同义词。", life: "你第一次赶早高峰地铁，被人流推着走，想「这就是长大」" },
       { label: "考公考编，图个安稳", effect: { deposit: 3, mind: 6, skill: 2 }, tend: { 数字隐士: 2 }, flag: "steady",
@@ -79,13 +94,45 @@
       { label: "先活着：找份能养自己的活", effect: { deposit: 2, skill: 6, network: 3, mind: 2 }, tend: { 清醒打工人: 2, 浪里掌舵: 1 },
         echo: "小公司活下来的人，后来很多都赶上了 AI 潮的第一波。", life: "你入职第一天，老板给了你一台 5 年前的本" }
     ],
-    S3: [
+    "S2@2018": [
+      { label: "趁年轻跳去风口行业", effect: { deposit: 10, skill: 12, mind: -6 }, tend: { 技术红利: 3 }, flag: "jump",
+        echo: "那年 BERT 发布、AI 换脸刷屏，AI 行业第一次给文科生发 offer。", life: "新公司平均年龄 26 岁，你同桌坐了三个应届生" },
+      { label: "稳住：把手上事做到极致", effect: { deposit: 4, skill: 10, mind: 2 }, tend: { 清醒打工人: 2 },
+        echo: "深耕的人后来发现，AI 时代最缺的不是会用 AI 的人，是懂行的人。", life: "你被评了年度优秀员工，奖杯放在柜子里吃灰" },
+      { label: "下班学点新的：Python 先学起来", effect: { skill: 8, deposit: -2, mind: 1 }, tend: { 上岸教练: 1 }, flag: "aiSkill",
+        echo: "那年「转码」成了职场热词，网课平台开始铺天盖地。", life: "你买了本书看了 8 页，又买了门课听了两节" }
+    ],
+    "S2@2021": [
+      { label: "跳槽去 AI 训练师：年薪 30 万", effect: { deposit: 10, skill: 12, mind: -6 }, tend: { 技术红利: 3 }, flag: "jump",
+        echo: "那年 AI 绘画拿奖、AI 翻译整本书刷屏，AI 岗位第一次开出高溢价。", life: "你递辞呈那晚，把这五年的工牌照片存了个相册" },
+      { label: "稳住：我确定自己的手艺", effect: { deposit: 4, skill: 10, mind: 2 }, tend: { 清醒打工人: 2 },
+        echo: "那年「35 岁焦虑」第一次上热搜，很多人开始琢磨手艺的护城河。", life: "你带的新人转正了，他叫了你一声师傅" },
+      { label: "不干了，搞副业", effect: { deposit: -5, skill: 8, network: 5, mind: 8 }, tend: { 一人公司: 4 }, flag: "bareQuit",
+        echo: "那年「裸辞搞副业」的笔记在小红书出了无数爆款。", life: "你算了 30 遍存款，才敢按发送键" }
+    ],
+    "S3@2017": [
       { label: "跳槽去风口：趁我还年轻", effect: { deposit: 10, skill: 12, mind: -6 }, tend: { 技术红利: 3 }, flag: "jump",
         echo: "那年风口行业的薪资比这里高一倍。", life: "你走那天，只跟一个同事吃了饭" },
       { label: "稳住：把手上事做到极致", effect: { deposit: 4, skill: 10, mind: 2 }, tend: { 清醒打工人: 2 },
         echo: "深耕的人后来发现，AI 时代最缺的不是会用 AI 的人，是懂行的人。", life: "你被评了年度优秀员工，奖杯放在柜子里吃灰" },
       { label: "不干了，搞副业", effect: { deposit: -5, skill: 8, network: 5, mind: 8 }, tend: { 一人公司: 4 }, flag: "bareQuit",
         echo: "那年「裸辞搞副业」的笔记在小红书出了无数爆款。", life: "你算了 30 遍存款，才敢按发送键" }
+    ],
+    "S3@2018": [
+      { label: "在新行业里继续往上卷", effect: { deposit: 6, skill: 14, mind: -5 }, tend: { 技术红利: 3 },
+        echo: "那年 BERT 发布、AI 换脸刷屏，你赌的赛道开始有了动静。", life: "你开始带项目了，第一次有人叫你「哥」" },
+      { label: "副业并行：两条腿走路", effect: { deposit: 3, skill: 8, network: 5, mind: -2 }, tend: { 一人公司: 2 },
+        echo: "那年「做号」开始流行，副业收入能顶半年工资的人变多了。", life: "你的副业账号涨了 5000 粉，第一条商单来了" },
+      { label: "后悔了：回老东家/考编稳妥", effect: { mind: 5, deposit: 2, skill: 2 }, tend: { 数字隐士: 2 }, flag: "steady",
+        echo: "那年有人跳了后悔，有人考编上岸——人人都想找个不慌的活法。", life: "你妈说「回来吧」，你说「我再试一年」" }
+    ],
+    "S3@2021": [
+      { label: "赌一把：把自己卖给 AI 浪潮", effect: { deposit: 12, skill: 15, mind: -8 }, tend: { 技术红利: 3 }, flag: "jump",
+        echo: "那年 AI 公司薪资仍在涨，但「35 岁」的坎也在。", life: "你加入的公司平均年龄 27 岁，你心跳了一下" },
+      { label: "回小城/考编：把人生存量变现", effect: { deposit: 6, mind: 10, skill: 2, network: -6 }, tend: { 数字隐士: 3, 浪里掌舵: 1 }, flag: "backSmallCity",
+        echo: "小城生活成了新的流量密码。", life: "你妈很高兴。你第一次在周四下午睡满了 8 小时" },
+      { label: "打工+副业双线：我不赌", effect: { skill: 10, deposit: 8, mind: -4 }, tend: { 一人公司: 3 },
+        echo: "「一人公司」正在成为真赛道：AI + 一个人 = 一家公司。", life: "副业收入第一次盖过工资那天，你把工资条设为仅自己可见" }
     ]
   };
 
@@ -143,12 +190,12 @@
       id: "D6", title: "人生重算账",
       scene: "房租快到期，爸妈在催，同事在跳。你看着手机上那个越来越聪明的 AI，想：我这一生，就这一种活法吗？",
       opts: [
-        { label: "咬死这条路：上班 + 副业双线", effect: { skill: 10, deposit: 8, mind: -4 }, tend: { 一人公司: 3 },
-          echo: "「一人公司」正在成为真赛道：AI + 一个人 = 一家公司。", life: "副业收入第一次盖过工资那天，你把工资条设为仅自己可见" },
-        { label: "回小城/考编，把人生存量变现", effect: { deposit: 6, mind: 10, skill: 2, network: -6 }, tend: { 数字隐士: 3, 浪里掌舵: 1 }, flag: "backSmallCity",
-          echo: "小城生活成了新的流量密码。", life: "你妈很高兴。你第一次在周四下午睡满了 8 小时" },
-        { label: "把自己卖给 AI 浪潮，赌下一轮", effect: { deposit: 12, skill: 15, mind: -8 }, tend: { 技术红利: 3 }, flag: "jump",
-          echo: "AI 公司薪资仍在涨，但「35 岁」的坎也在。", life: "你加入的公司平均年龄 27 岁，你心跳了一下" }
+        { label: "算一笔辞职账：我想自己安排时间", effect: { skill: 10, deposit: 8, mind: -4 }, tend: { 一人公司: 3 },
+          echo: "2025 年「用 AI 接活」的真实案例开始变多，自由职业不再是传说。", life: "你算到第十遍，发现最贵的是「不敢开始」" },
+        { label: "把退路算清楚：哪里能睡着觉", effect: { deposit: 6, mind: 10, skill: 2, network: -6 }, tend: { 数字隐士: 3, 浪里掌舵: 1 }, flag: "backSmallCity",
+          echo: "2025 年「回小城」从无奈变成了选项——很多人开始认真算这笔账。", life: "你把小城的房租、物价、通勤列成表，比加班细致" },
+        { label: "不给自己留后路：All in 下一轮", effect: { deposit: 12, skill: 15, mind: -8 }, tend: { 技术红利: 3 }, flag: "jump",
+          echo: "2025 年 AI 公司仍在抢人，你投出去的简历第一次全部有回音。", life: "面试官问你「为什么来」，你说「想赌一把」" }
       ]
     },
     D7: {
@@ -307,7 +354,7 @@
     G: {
       key: "G", name: "被浪吞型", archive: "被浪吞", warn: true,
       bio: "你的技能没跟上，AI 依赖度却拉满了。\n{裁员那年} 公司把你裁了。投了 60 份简历，第一关全是 AI 筛掉的。\n你开始刷短视频，一刷就是一天——因为只有算法还认识你。",
-      judge: { fail: true, aiDep_min: 22, skill_max: 65, network_min: 36 }, tendency: null
+      judge: { fail: true, aiDep_min: 22, skill_max: 70, network_min: 35, notFlags: ["taughtAI"] }, tendency: null
     },
     H: {
       key: "H", name: "反诈受害者型", archive: "反诈受害者", warn: true,
