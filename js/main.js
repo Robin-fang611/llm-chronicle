@@ -194,6 +194,19 @@
 
   function triggerDownload(url, name) {
     try {
+      /* 小红书容器：JSBridge 存相册（writeTempFile → saveImageToPhotosAlbum，官方组合） */
+      var mt = global.window && window.xhs && window.xhs.miniTool;
+      if (mt && mt.writeTempFile && mt.saveImageToPhotosAlbum) {
+        mt.writeTempFile({ data: url }).then(function (res) {
+          if (res && res.filePath) {
+            mt.saveImageToPhotosAlbum({ filePath: res.filePath }).catch(function (e) {
+              if (global.console) console.error('[xhs-save]', e);
+            });
+          }
+        }).catch(function (e) { if (global.console) console.error('[xhs-temp]', e); });
+        return;
+      }
+      /* 容器外（本地浏览器调试）：a[download] 下载 */
       var a = document.createElement('a');
       a.href = url;
       a.download = name;

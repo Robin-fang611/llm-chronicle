@@ -82,8 +82,17 @@
   function renderOpening(state, extra) {
     var Y = state.startYear, A = state.startAge;
     var screen = el('div', { className: 'screen screen-opening' });
+    screen.appendChild(el('div', { className: 'op-logo', id: 'open-logo', html:
+      '<svg viewBox="0 0 132 66" width="132" height="66" aria-hidden="true">' +
+        '<g transform="rotate(-6 66 33)">' +
+          '<rect x="7" y="7" width="118" height="52" fill="#E8B64C" stroke="#2B2620" stroke-width="6"/>' +
+          '<rect x="15" y="15" width="102" height="36" fill="none" stroke="#FBF6EA" stroke-width="3"/>' +
+          '<text x="66" y="42" text-anchor="middle" font-size="27" font-weight="700" fill="#2B2620" font-family="Kaiti SC,KaiTi,STKaiti,serif">第 1 天</text>' +
+        '</g>' +
+      '</svg>' }));
     screen.appendChild(el('div', { className: 'stamp', id: 'open-stamp', text: 'NO.' + Y + '-' + A }));
-    screen.appendChild(el('h1', { className: 'title', html: '你回到 <b>' + Y + '</b> 年<br>你那年几岁？' }));
+    screen.appendChild(el('h1', { className: 'title', html: '回到<b>AI</b>纪元<br>第一天' }));
+    screen.appendChild(el('div', { className: 'title-sub', text: '你那年几岁？选一个，直接开穿' }));
 
     // 年龄三档卡片（v6：固定 2017，只选年龄 18/22/25；文案=§1.1 逐字「{age} 岁 · {阶段}」）
     var cards = el('div', { className: 'age-cards' });
@@ -98,7 +107,7 @@
     screen.appendChild(cards);
 
     screen.appendChild(el('div', { className: 'preview-card', id: 'open-preview', text: C.openings[String(A)] }));
-    var begin = el('button', { className: 'btn btn-primary', id: 'btn-begin', attrs: { type: 'button' }, text: '开始' });
+    var begin = el('button', { className: 'btn btn-primary', id: 'btn-begin', attrs: { type: 'button' }, text: '开整！' });
     begin.addEventListener('click', function () { HANDLERS.onBegin && HANDLERS.onBegin(); });
     screen.appendChild(begin);
     if (extra && extra.canResume) {
@@ -106,7 +115,7 @@
       resume.addEventListener('click', function () { HANDLERS.onResume && HANDLERS.onResume(); });
       screen.appendChild(resume);
     }
-    screen.appendChild(el('div', { className: 'footnote', text: '不用懂 AI 在干嘛，选你当年会选的就行' }));
+    screen.appendChild(el('div', { className: 'footnote', text: '不用懂 AI，选你当年会选的就行——AI 只是背景音，你才是主角' }));
     return screen;
   }
 
@@ -136,7 +145,7 @@
     if (step.id === 'D9' && !state._pending) {
       var kc = L.keyChoices(state, 5).slice().sort(function (a, b) { return a.year - b.year; });
       var kcWrap = el('div', { className: 'key-choices' });
-      kcWrap.appendChild(el('div', { className: 'kc-head', text: '这些年，你做过的关键选择' }));
+      kcWrap.appendChild(el('div', { className: 'kc-head', text: '这些年，你干过的关键事' }));
       kc.forEach(function (ch) {
         var row = el('div', { className: 'kc-row' });
         row.appendChild(el('div', { className: 'kc-year', text: (ch.year || '') + ' 年' }));
@@ -177,7 +186,7 @@
       life.appendChild(el('div', { className: 'life-kicker', text: '生活线' }));
       life.appendChild(el('div', { className: 'life-text', text: pending.option.life }));
       screen.appendChild(life);
-      screen.appendChild(el('div', { className: 'hint', text: '想改主意？再点一次别的选项。' }));
+      screen.appendChild(el('div', { className: 'hint', text: '手滑了？再点一次别的，改到你满意为止。' }));
       var cont = el('button', { className: 'btn btn-primary btn-continue', attrs: { type: 'button' }, text: '继续' });
       cont.addEventListener('click', function () { HANDLERS.onContinue && HANDLERS.onContinue(); });
       screen.appendChild(cont);
@@ -188,7 +197,7 @@
   /* ============================================================ 中段结算 */
   function renderMidsettle(state) {
     var screen = el('div', { className: 'screen screen-mid' });
-    screen.appendChild(el('div', { className: 'mid-title', text: '中场 · 你走到哪了' }));
+    screen.appendChild(el('div', { className: 'mid-title', text: '中场 · 你活成啥样了' }));
     screen.appendChild(el('div', { className: 'mid-sub', text: state.year + ' 年 · 你 ' + state.age + ' 岁' }));
 
     var quad = el('div', { className: 'res-quad' });
@@ -221,17 +230,17 @@
       { code: 'IO', name: '能量方向', known: false, val: '?' }
     ];
     var pp = el('div', { className: 'persona-progress' });
-    pp.appendChild(el('div', { className: 'pp-head', text: '此刻气质 2/4' }));
+    pp.appendChild(el('div', { className: 'pp-head', text: '此刻气质 2/4（懂的都懂）' }));
     dims.forEach(function (d) {
       pp.appendChild(el('div', { className: 'pp-cell' + (d.known ? ' lit' : ''), text: d.code + ' ' + d.val }));
     });
     screen.appendChild(pp);
 
     var actions = el('div', { className: 'mid-actions' });
-    var cont = el('button', { className: 'btn btn-primary', attrs: { type: 'button' }, text: '继续走完最后两年' });
+    var cont = el('button', { className: 'btn btn-primary', attrs: { type: 'button' }, text: '冲！最后两年' });
     cont.addEventListener('click', function () { HANDLERS.onContinue && HANDLERS.onContinue(); });
     actions.appendChild(cont);
-    var share = el('button', { className: 'btn btn-ghost', attrs: { type: 'button' }, text: '分享半场小结' });
+    var share = el('button', { className: 'btn btn-ghost', attrs: { type: 'button' }, text: '晒半场小结' });
     share.addEventListener('click', function () { HANDLERS.onShareHalf && HANDLERS.onShareHalf(); });
     actions.appendChild(share);
     screen.appendChild(actions);
@@ -274,7 +283,7 @@
     b1.addEventListener('click', function () { HANDLERS.onArchives && HANDLERS.onArchives(); });
     var b2 = el('button', { className: 'btn btn-primary', attrs: { type: 'button' }, text: '生成成绩卡' });
     b2.addEventListener('click', function () { HANDLERS.onScore && HANDLERS.onScore(); });
-    var b3 = el('button', { className: 'btn btn-ghost', attrs: { type: 'button' }, text: '再来一局' });
+    var b3 = el('button', { className: 'btn btn-ghost', attrs: { type: 'button' }, text: '重开一局！' });
     b3.addEventListener('click', function () { HANDLERS.onRestart && HANDLERS.onRestart(); });
     actions.appendChild(b1); actions.appendChild(b2); actions.appendChild(b3);
     screen.appendChild(actions);
@@ -429,7 +438,7 @@
         wrapText(ctx, (ch.year || '') + ' 年 · ' + ch.label, 70, kcY + 60 + i * 56, W - 140, 48);
       });
       ctx.fillStyle = ink; ctx.globalAlpha = 0.4; ctx.font = '26px ' + fontSans;
-      ctx.fillText('大模型编年史 · 我们这十年', 70, H - 60); ctx.globalAlpha = 1;
+      ctx.fillText('回到AI纪元第一天', 70, H - 60); ctx.globalAlpha = 1;
       return;
     }
 
@@ -477,7 +486,7 @@
 
     // 水印
     ctx.fillStyle = ink; ctx.globalAlpha = 0.4; ctx.font = '26px ' + fontSans;
-    ctx.fillText('大模型编年史 · 我们这十年', 70, H - 60);
+    ctx.fillText('回到AI纪元第一天', 70, H - 60);
     ctx.globalAlpha = 1;
   }
 

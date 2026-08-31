@@ -1,5 +1,5 @@
 /* ==========================================================================
- * 《大模型编年史 · 我们这十年》美术样式 v2「生活气 · 多模式」
+ * 《回到AI纪元第一天》美术样式 v2「生活气 · 多模式」
  * 三层架构：:root 共享层（通用名=M1 默认）→ [data-mode] 模式层
  *            → [data-era] 年代滤镜层 → [data-stage] 人生阶段层
  * 组件只引用通用名（--paper-1/--accent/--radius-card …），零模式分支。
@@ -227,6 +227,12 @@ img, svg { display: block; }
 
 /* ============================ 开局页（§7.1） ============================ */
 .screen-opening { justify-content: center; gap: var(--sp-5); }
+.op-logo {
+  align-self: center;
+  margin-bottom: var(--sp-1);
+  transform-origin: center;
+  animation: mc-pop var(--dur-mid) var(--ease-pop);
+}
 .stamp {
   align-self: flex-start;
   font-family: var(--font-mono);
@@ -234,13 +240,46 @@ img, svg { display: block; }
   font-weight: var(--fw-bold);
   letter-spacing: 1px;
   color: var(--era-stamp-color, var(--ink));
+  background: var(--paper-0);
   border: 2px solid currentColor;
   border-radius: var(--radius-sm);
   padding: 4px 10px;
   transform: rotate(-3deg);
+  box-shadow: 3px 3px 0 rgba(43, 38, 32, 0.28);
 }
-.title { font-size: var(--fs-display); line-height: var(--lh-display); font-weight: var(--fw-bold); }
-.title b { font-family: var(--font-note); color: var(--accent); font-weight: var(--fw-bold); }
+.title {
+  font-size: var(--fs-display);
+  line-height: var(--lh-display);
+  font-weight: var(--fw-bold);
+  text-align: center;
+  letter-spacing: 3px;
+  transform: rotate(-1.5deg);
+  text-shadow: 2px 2px 0 var(--paper-3), 4px 4px 0 rgba(43, 38, 32, 0.35);
+  animation: mc-wobble var(--dur-slow) var(--ease-pop);
+}
+.title b {
+  font-family: var(--font-note);
+  color: var(--accent);
+  font-weight: var(--fw-bold);
+  text-shadow: 1px 1px 0 var(--paper-0), -1px -1px 0 var(--paper-0),
+               1px -1px 0 var(--paper-0), -1px 1px 0 var(--paper-0);
+}
+.title-sub {
+  margin-top: calc(var(--sp-1) * -1);
+  font-size: var(--fs-sm);
+  color: var(--ink-3);
+  text-align: center;
+  letter-spacing: 1px;
+}
+@keyframes mc-wobble {
+  0%   { transform: rotate(-4deg); }
+  50%  { transform: rotate(1.5deg); }
+  100% { transform: rotate(-1.5deg); }
+}
+@keyframes mc-pop {
+  0%   { transform: scale(0.7) rotate(-10deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
 /* 年龄三档卡片（v5：固定 2017，只选年龄 18/22/25） */
 .age-cards { display: flex; flex-direction: column; gap: var(--sp-3); margin-top: var(--sp-4); }
 .age-card {
