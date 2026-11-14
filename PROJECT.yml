@@ -1,0 +1,9 @@
+# 由 2026-11-02 扫描生成；lifecycle 与描述待确认
+name: 模型编年史
+description: 《回到 AI 纪元第一天》离线 H5 游戏
+type: app
+lifecycle: active
+owner: me
+created: 2026-11-02
+depends_on: []
+agents: []

@@ -1,0 +1,184 @@
+{
+  "private": true,
+  "name": "@genie/workbuddy-desktop",
+  "version": "5.4.4",
+  "description": "WorkBuddy Desktop - AI Agent Desktop Application",
+  "packageManager": "pnpm@11.20.0",
+  "author": {
+    "name": "Tencent Technology (Shenzhen) Company Limited",
+    "email": "workbuddy@tencent.com"
+  },
+  "homepage": "https://www.codebuddy.ai",
+  "main": "main/index.js",
+  "dependencies": {
+    "@genie/at-rest-crypto": "workspace:*",
+    "@opentelemetry/api": "^1.8.0",
+    "@opentelemetry/core": "^1.25.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.52.1",
+    "@opentelemetry/exporter-trace-otlp-proto": "^0.52.1",
+    "@opentelemetry/resources": "^1.25.0",
+    "@opentelemetry/sdk-trace-base": "^1.25.0",
+    "@modelcontextprotocol/sdk": "1.24.3",
+    "@tencent/tencent-docs-ai-engine": "0.2.137-wb",
+    "@tencent/aegis-electron-sdk-v2": "^2.6.13",
+    "@tencent/aegis-web-sdk-v2": "^2.6.13",
+    "@tencent/universal-report": "^4.7.2",
+    "koffi": "^2.10.1",
+    "@wecom/aibot-node-sdk": "1.0.7",
+    "@larksuiteoapi/node-sdk": "^1.60.0",
+    "dingtalk-stream": "^2.1.5",
+    "axios": "catalog:",
+    "better-sqlite3": "^12.8.0",
+    "cos-nodejs-sdk-v5": "^2.14.5",
+    "@lydell/node-pty": "^1.2.0-beta.14",
+    "@openai/agents": "^0.5.2",
+    "adm-zip": "^0.5.16",
+    "chokidar": "^3.6.0",
+    "nunjucks": "3.1.7",
+    "reflect-metadata": "^0.1.13",
+    "semver": "^7.7.2",
+    "tar": "^6.2.1",
+    "zod": "<=3.25.67",
+    "electron-log": "^5.4.3",
+    "form-data": "^4.0.0",
+    "undici": "^6.23.0",
+    "ws": "^8.18.0",
+    "@slack/socket-mode": "^2.0.7",
+    "@slack/web-api": "^7.0.0",
+    "@tencent-connect/qqbot-connector": "^1.1.0",
+    "@tencent/drive-sdk": "1.1.2",
+    "uuid": "^9.0.1",
+    "@genie/workbuddy-core": "workspace:*",
+    "@genie/workbuddy-extensions": "workspace:*",
+    "pidusage": "^3.0.2"
+  },
+  "optionalDependencies": {
+    "@tencent/qimei-node": "1.2.2",
+    "@lydell/node-pty-darwin-arm64": "1.2.0-beta.14",
+    "@lydell/node-pty-darwin-x64": "1.2.0-beta.14",
+    "@lydell/node-pty-linux-arm64": "1.2.0-beta.14",
+    "@lydell/node-pty-linux-x64": "1.2.0-beta.14",
+    "@lydell/node-pty-win32-arm64": "1.2.0-beta.14",
+    "@lydell/node-pty-win32-x64": "1.2.0-beta.14",
+    "@tencent-ai/sandbox-cli-darwin-arm64": "5.4.5",
+    "@tencent-ai/sandbox-cli-darwin-x64": "5.4.5",
+    "@tencent-ai/sandbox-cli-linux-arm64": "5.4.5",
+    "@tencent-ai/sandbox-cli-linux-x64": "5.4.5",
+    "@tencent-ai/sandbox-cli-win32-x64": "5.4.5",
+    "node-pty": "1.1.0"
+  },
+  "nx": {
+    "targets": {
+      "compile": {
+        "executor": "nx:noop",
+        "dependsOn": [
+          "^compile"
+        ],
+        "cache": false
+      },
+      "dev:single": {
+        "dependsOn": [
+          "copy-cli",
+          "^compile"
+        ],
+        "cache": false
+      },
+      "dev:proxy": {
+        "dependsOn": [
+          "copy-cli",
+          "^compile"
+        ],
+        "cache": false
+      },
+      "dev:with-ext": {
+        "dependsOn": [
+          "copy-cli",
+          "^compile"
+        ],
+        "cache": false
+      },
+      "test:e2e": {
+        "dependsOn": [
+          "^compile"
+        ]
+      },
+      "package": {
+        "dependsOn": [
+          "^compile"
+        ]
+      },
+      "copy-cli": {
+        "command": "node scripts/copy-cli.js",
+        "options": {
+          "cwd": "apps/workbuddy-desktop"
+        },
+        "cache": true,
+        "inputs": [
+          {
+            "dependentTasksOutputFiles": "**/*",
+            "transitive": false
+          },
+          "{workspaceRoot}/packages/agent-cli/bin/**/*",
+          "{workspaceRoot}/packages/agent-cli/vendor/**/*",
+          "{workspaceRoot}/packages/agent-cli/product*.json",
+          "{workspaceRoot}/packages/agent-cli/package.json",
+          "{workspaceRoot}/packages/runtime-admission-protocol/src/runtime-admission-contract.ts",
+          "{projectRoot}/build/assets/cloud-hosted/product.workbuddy.json",
+          "{projectRoot}/package.json",
+          "{projectRoot}/scripts/copy-cli.js",
+          "{projectRoot}/scripts/cli-source.js",
+          "{workspaceRoot}/build/patches/workbuddy-desktop/**/*",
+          {
+            "env": "VENDOR_PLATFORM"
+          },
+          {
+            "env": "VENDOR_ARCH"
+          },
+          {
+            "env": "PLATFORM"
+          },
+          {
+            "env": "PRODUCT_PATCH"
+          },
+          {
+            "env": "SANDBOX_LOCAL_PACK_DIR"
+          },
+          {
+            "env": "SANDBOX_FILE_VERSION_MANAGEMENT_ENABLED"
+          }
+        ],
+        "outputs": [
+          "{projectRoot}/cli"
+        ]
+      },
+      "build-cli": {
+        "command": "node scripts/verify-cli-freshness.js",
+        "options": {
+          "cwd": "apps/workbuddy-desktop"
+        },
+        "dependsOn": [
+          "copy-cli"
+        ],
+        "cache": false
+      },
+      "dev": {
+        "dependsOn": [
+          "copy-cli",
+          "^compile"
+        ],
+        "cache": false
+      },
+      "dev:bundle": {
+        "dependsOn": [
+          "copy-cli",
+          "^compile"
+        ],
+        "cache": false
+      },
+      "dev:bundle:rebuild": {
+        "cache": false
+      }
+    }
+  },
+  "productName": "WorkBuddy"
+}
